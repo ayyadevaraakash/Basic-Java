@@ -1,8 +1,8 @@
 M
 #1 avinash, utkarsh, aaditya
 #2 aman, shlok
-#3 saleem
-#4 manobala
+#3 saleem, kalpesh
+#4 manobala,vasanth
 #5 jignesh, nayan
 #6 antony, pratik
 #7 nagurbabu, abhishek rohit
