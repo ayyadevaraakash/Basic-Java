@@ -1,0 +1,137 @@
+JVM
+JVM is an abstract machine that executes Java bytecode.
+It provides platform independence by converting bytecode into machine-specific instructions.
+
+JRE
+JRE provides the environment to run Java applications.
+It contains JVM + core libraries + supporting files.
+
+JDK
+JDK is used to develop Java applications.
+It contains JRE + development tools like javac, java, javadoc, jar.
+
+Role of JVM:
+1. Class Loading – Loads .class files into memory
+
+2. Bytecode Verification – Ensures code is safe and secure
+
+3. Execution Engine – Interprets or JIT-compiles bytecode
+
+4. Memory Management – Allocates memory and performs Garbage Collection
+
+5. Platform Independence – Same bytecode runs on different OS
+
+JVM Memory Model:
+1. Heap Area
+	a. Stores objects and instance variables
+	b. Shared across threads
+	c. Managed by Garbage Collector
+
+2. Stack Area
+	a. Stores method calls, local variables, and references
+	b. One stack per thread
+	c. Memory is freed when method execution completes
+
+3. MetaSpace (old name: Method Area)
+	a. Stores class-level data
+	b. Class metadata
+	c. Static variables
+	d. Method bytecode
+
+4. Program Counter
+	a. Stores the address of currently executing instruction
+	b. One per thread
+
+5. Native Method Stack
+	Used for native (C/C++) methods invoked via JNI
+
+
+# JVM is platform dependent, but Java is platform independent
+
+Garbage Collection:
+Garbage Collection (GC) is an automatic memory management process in Java where the JVM removes unused objects from heap memory to free space.
+
+An object becomes eligible for GC when no active reference points to it.
+
+GC deletes objects, not variables.
+
+Process:
+	a. JVM tracks object references
+	b. Objects not reachable from GC Roots are marked
+	c. Marked objects are removed
+	d. Memory is compacted
+
+
+System.gc() only requests JVM to run Garbage Collection.
+JVM may ignore the request
+
+Why?
+	a. JVM decides GC timing based on performance and memory pressure
+	b. Forcing GC can hurt performance
+
+
+Class Loader Subsystem:
+Class Loader Subsystem is a part of JVM that loads .class files into memory at runtime and makes them available for execution.
+
+“Class Loader loads class files dynamically when they are required, not at compile time.”
+
+Types of Class Loaders:
+1. Bootstrap Class Loader
+Loads core Java classes from java.lang, java.util etc
+
+2. Extension (Platform) Class Loader
+Loads classes from jre/lib/ext (enabling java 8 features)
+
+3. Application (System) Class Loader
+Loads classes from classpath. Most user-defined classes are loaded here.
+
+Parent Delegation Model:
+	a. JVM follows the Parent Delegation Model, where a class loader first delegates class loading to its parent before trying to load the class itself.
+	b. Prevents duplicate classes (example: we cannot make our own "String" class)
+
+Phases of Class Loading:
+Loading: Reads .class file and creates Class object in Method area
+
+Linking
+	a. Checks bytecode correctness and security
+	b. Allocates memory for static variables
+	c. Converts symbolic references to direct references
+
+Initialization: Executes static blocks. Happens only once per class.
+
+# Classes are loaded at runtime, NOT COMPILE TIME
+
+
+Abstract and Interface:
+
+Abstract class represents an “is-a” relationship with shared state and behavior, while Interface represents a contract that a class agrees to follow.
+
+Abstract Class can have:
+	a. instance variables
+	b. constructors
+	c. abstract + non-abstract methods
+	d. single inheritance only
+	e. Methods can have any access modifier
+	f. Use when classes share common code + common state
+
+In Interface:
+	a. Variables are public static final
+	b. no constructors
+	c. abstract + (from java 8) default + (from java 8) static methods
+	d. multiple inheritance
+	e. All methods are public by default
+	f. You want to define a contract + Classes are not closely related
+
+
+Can we create object of abstract class?
+No
+
+Can a class implement multiple interfaces?
+Yes
+
+Can abstract class implement interface?
+Yes
+
+Can interface extend another interface?
+Yes
+

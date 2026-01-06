@@ -1,0 +1,717 @@
+Core Java
+
+Test.java
+|
+bytecode (jvm ko samjhega, platform independent
+|
+machine code (system dependent)
+
+=============
+compiling (our code - fast)
+|
+interpreter slow hota hai because is mein 2 pass hote hai (bytecode - slow)
+
+PASS 1 - group the instructions
+PASS 2 - execute line by line
+
+=============
+interpreter ke phase mein suppose koi ek method/ek code 10 baar use hota hai, toh JIC (Just in time compiler) hota hai usko compile karke rakhta hai, taaki interpreter woh compile code ko 10 baar interpret nahi kare
+
+JIC is a part of JVM, not java compiler (JIC works in runtime)
+
+========MULTITHREADING========
+
+NEW → RUNNABLE → RUNNING → BLOCKED/WAITING → TERMINATED
+
+ExecutorService ex = Executors.newFixedThreadPool(4);
+ex.submit(() -> process());
+
+Runnable -> No return value, No Exception
+Callable -> return value, can throw exception
+
+=======COLLECTIONS==========
+
+Iterable
+ └── Collection
+      ├── List
+      ├── Set
+      └── Queue
+Map (separate hierarchy)
+
+
+Set===
+1. TreeSet = sorted + redblack tree + O(log N)
+
+HashMap===
+1. uses array of buckets
+2. we calculate bucket idx using hash fn
+3. collisions handled by: linkedList(before java 8), redblack tree (java 8+) when bucket size > 8, table size >= 64
+
+If we iterate on map and modify it at the same time, then it will throw "ConcurrentModificationException"
+
+Remedy is ConcurrentHashMap:
+
+1. Null not allowed in ConcurrentHashMap
+2. It uses fine grained locking
+
+IMPORTANT POINTS===
+
+Arrays.asList()
+-   Size cannot change (i.e add/remove not allowed)
+-   Modifying any idx's value is allowed
+-   NULL value is allowed at the time of creation
+-   Launched in Java 1.2
+
+List.of()
+-   Size cannot change
+-   Any kind of modification is not allowed
+-   NULL value is not allowed
+-   Launched in Java 9
+
+HashMap Iterations Used Methods==
+.entrySet()
+.getKey()
+.getValue()
+.keySet()
+.values()
+
+
+IMPORTANT METHODS========
+
+1. ArrayList and LinkedList
+.add()
+.size()
+.remove(idx)
+.isEmpty()
+
+.get(idx)
+.set(idx, newValue)
+.remove(Integer.valueOf(number))
+
+2. Queue => LinkedList
+
+.add() / .offer()
+.poll()
+.peek()
+.size()
+.isEmpty()
+
+3. Stack
+.push()
+.pop()
+.peek()
+.empty() / .isEmpty()
+
+4. PRIORITY QUEUE (min heap)
+.add() / .offer()
+.poll()
+.peek()
+.size()
+.isEmpty()
+
+JAVA 8====
+
+java.util.function
+
+Predicate<T> == boolean test(T t)
+BiPredicate<T,U> == boolean test(T t, U u);
+
+Function<T,R> == R apply(T t);
+BiFunction<T,U,R> == R apply(T t, U u);
+
+Consumer<T> == void accept(T t);
+BiConsumer<T,U> == void accept(T t, U u);
+
+Supplier<T> == T get();
+
+STREAMS======
+// ================================
+// Java 8 Streams – Questions & Correct Answers (2 YOE)
+// ================================
+
+
+// 1) Sum of all even numbers
+int sumEven =
+    nums.stream()
+        .filter(x -> x % 2 == 0)
+        .mapToInt(Integer::intValue)
+        .sum();
+
+
+// 2) Maximum odd number (handle no odd case)
+OptionalInt maxOdd =
+    nums.stream()
+        .filter(x -> x % 2 != 0)
+        .mapToInt(Integer::intValue)
+        .max();
+
+// with default
+int maxOddVal =
+    nums.stream()
+        .filter(x -> x % 2 != 0)
+        .mapToInt(Integer::intValue)
+        .max()
+        .orElse(-1);
+
+
+// 3) Count how many numbers are prime
+long primeCount =
+    nums.stream()
+        .filter(this::isPrime)
+        .count();
+
+
+// 4) Second highest number (handle duplicates)
+Optional<Integer> secondHighest =
+    nums.stream()
+        .distinct()
+        .sorted(Comparator.reverseOrder())
+        .skip(1)
+        .findFirst();
+
+
+// 5) Group numbers into even and odd (BEST)
+Map<Boolean, List<Integer>> evenOdd =
+    nums.stream()
+        .collect(Collectors.partitioningBy(x -> x % 2 == 0));
+
+
+// 6) First non-repeated number (preserve order)
+Optional<Integer> firstUnique =
+    nums.stream()
+        .collect(Collectors.groupingBy(
+            x -> x,
+            LinkedHashMap::new,
+            Collectors.counting()
+        ))
+        .entrySet()
+        .stream()
+        .filter(e -> e.getValue() == 1)
+        .map(Map.Entry::getKey)
+        .findFirst();
+
+
+// 7) Print all numbers greater than 10
+nums.stream()
+    .filter(x -> x > 10)
+    .forEach(System.out::println);
+
+
+// 8) Print squares of all even numbers
+nums.stream()
+    .filter(x -> x % 2 == 0)
+    .map(x -> x * x)
+    .forEach(System.out::println);
+
+
+// 9) Sum of squares of all odd numbers
+int sumOddSquares =
+    nums.stream()
+        .filter(x -> x % 2 != 0)
+        .mapToInt(x -> x * x)
+        .sum();
+
+
+// 10) Average of all even numbers
+double avgEven =
+    nums.stream()
+        .filter(x -> x % 2 == 0)
+        .mapToInt(Integer::intValue)
+        .average()
+        .orElse(-1);
+
+
+// 11) Minimum odd number
+Optional<Integer> minOdd =
+    nums.stream()
+        .filter(x -> x % 2 != 0)
+        .min(Integer::compareTo);
+
+
+// 12) Check if all numbers are positive
+boolean allPositive =
+    nums.stream()
+        .allMatch(x -> x > 0);
+
+
+// 13) Check if at least one even number exists
+boolean hasEven =
+    nums.stream()
+        .anyMatch(x -> x % 2 == 0);
+
+Q14) Remove duplicates and print in same order
+----------------------------------
+nums.stream()
+    .distinct()
+    .forEach(System.out::println);
+
+
+Q15) Sort numbers in descending order and print
+----------------------------------
+nums.stream()
+    .sorted(Comparator.reverseOrder())
+    .forEach(System.out::println);
+
+
+Q16) Sum of top 3 largest numbers
+----------------------------------
+int sum =
+    nums.stream()
+        .sorted(Comparator.reverseOrder())
+        .limit(3)
+        .mapToInt(Integer::intValue)
+        .sum();
+
+
+Q17) Create frequency map (number -> count)
+----------------------------------
+Map<Integer, Long> freq =
+    nums.stream()
+        .collect(Collectors.groupingBy(x -> x, Collectors.counting()));
+
+
+Q18) Print numbers whose frequency is greater than 1
+----------------------------------
+nums.stream()
+    .collect(Collectors.groupingBy(x -> x, Collectors.counting()))
+    .entrySet()
+    .stream()
+    .filter(e -> e.getValue() > 1)
+    .map(Map.Entry::getKey)
+    .forEach(System.out::println);
+
+
+Q19) Find the number with the highest frequency
+----------------------------------
+nums.stream()
+    .collect(Collectors.groupingBy(x -> x, Collectors.counting()))
+    .entrySet()
+    .stream()
+    .max(Map.Entry.comparingByValue())
+    .map(Map.Entry::getKey)
+    .ifPresent(System.out::println);
+
+
+Q20) Return top 2 most frequent numbers
+----------------------------------
+List<Integer> top2 =
+    nums.stream()
+        .collect(Collectors.groupingBy(x -> x, Collectors.counting()))
+        .entrySet()
+        .stream()
+        .sorted(Map.Entry.<Integer, Long>comparingByValue().reversed())
+        .limit(2)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+
+
+Q21) Return numbers that appear exactly twice
+----------------------------------
+List<Integer> exactlyTwice =
+    nums.stream()
+        .collect(Collectors.groupingBy(x -> x, Collectors.counting()))
+        .entrySet()
+        .stream()
+        .filter(e -> e.getValue() == 2)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+
+
+Q22) Return all duplicate numbers (appear more than once)
+----------------------------------
+List<Integer> duplicates =
+    nums.stream()
+        .collect(Collectors.groupingBy(x -> x, Collectors.counting()))
+        .entrySet()
+        .stream()
+        .filter(e -> e.getValue() > 1)
+        .map(Map.Entry::getKey)
+        .collect(Collectors.toList());
+
+
+Q23) Find the first duplicate number (preserve order)
+----------------------------------
+Optional<Integer> firstDuplicate =
+    nums.stream()
+        .collect(Collectors.groupingBy(
+            x -> x,
+            LinkedHashMap::new,
+            Collectors.counting()
+        ))
+        .entrySet()
+        .stream()
+        .filter(e -> e.getValue() > 1)
+        .map(Map.Entry::getKey)
+        .findFirst();
+
+
+Q24) Find the first non-repeated number (preserve order)
+----------------------------------
+Optional<Integer> firstNonRepeated =
+    nums.stream()
+        .collect(Collectors.groupingBy(
+            x -> x,
+            LinkedHashMap::new,
+            Collectors.counting()
+        ))
+        .entrySet()
+        .stream()
+        .filter(e -> e.getValue() == 1)
+        .map(Map.Entry::getKey)
+        .findFirst();
+
+
+Q25) Check if list is sorted in ascending order
+----------------------------------
+boolean isSorted =
+    IntStream.range(0, nums.size() - 1)
+        .allMatch(i -> nums.get(i) <= nums.get(i + 1));
+
+
+
+FLATMAP Practice=========
+
+Q1. Flatten List of Lists
+
+Input:
+List<List<Integer>> nums = Arrays.asList(
+    Arrays.asList(1, 2),
+    Arrays.asList(3, 4, 5)
+);
+
+Output:
+[1, 2, 3, 4, 5]
+
+Answer:
+nums.stream()
+    .flatMap(x -> x.stream())
+    .collect(Collectors.toList());
+
+
+--------------------------------------------------
+
+
+Q2. Split Sentences into Words
+
+Input:
+List<String> sentences = Arrays.asList(
+    "java is fun",
+    "streams are powerful"
+);
+
+Output:
+[java, is, fun, streams, are, powerful]
+
+Answer:
+sentences.stream()
+         .flatMap(x -> Arrays.stream(x.split(" ")))
+         .collect(Collectors.toList());
+
+
+--------------------------------------------------
+
+
+Q3. Get All Skills from Employees
+
+Input:
+class Employee {
+    String name;
+    List<String> skills;
+}
+
+List<Employee> employees;
+
+Output:
+[java, spring, sql, react]
+
+Answer:
+employees.stream()
+         .flatMap(x -> x.skills.stream())
+         .collect(Collectors.toList());
+
+
+--------------------------------------------------
+
+
+Q4. Flatten and Join Strings
+
+Input:
+List<List<String>> data = Arrays.asList(
+    Arrays.asList("a", "b"),
+    Arrays.asList("c", "d")
+);
+
+Output:
+"abcd"
+
+Answer:
+data.stream()
+    .flatMap(x -> x.stream())
+    .reduce("", (a, b) -> a + b);
+
+
+--------------------------------------------------
+
+
+Q5. Characters from Words
+
+Input:
+List<String> words = Arrays.asList("abc", "de");
+
+Output:
+[a, b, c, d, e]
+
+Answer:
+words.stream()
+     .flatMap(x -> x.chars().mapToObj(c -> (char) c))
+     .collect(Collectors.toList());
+
+
+--------------------------------------------------
+
+
+Q6. Sum of Squares
+
+Input:
+List<List<Integer>> nums = Arrays.asList(
+    Arrays.asList(1, 2, 3),
+    Arrays.as.asList(4, 5)
+);
+
+Output:
+55
+
+Answer:
+nums.stream()
+    .flatMap(x -> x.stream())
+    .mapToInt(x -> x * x)
+    .sum();
+
+
+--------------------------------------------------
+
+
+Q7. Total Price of BOOK Items
+
+Input:
+class Order {
+    List<Item> items;
+}
+
+class Item {
+    String category;
+    int price;
+}
+
+List<Order> orders;
+
+Output:
+Total price of BOOK items
+
+Answer (mapToInt – preferred):
+orders.stream()
+      .flatMap(o -> o.items.stream())
+      .filter(i -> i.category.equals("BOOK"))
+      .mapToInt(i -> i.price)
+      .sum();
+
+
+Answer (reduce – 3 arguments):
+orders.stream()
+      .flatMap(o -> o.items.stream())
+      .filter(i -> i.category.equals("BOOK"))
+      .reduce(
+          0,
+          (sum, item) -> sum + item.price,
+          Integer::sum
+      );
+
+
+--------------------------------------------------
+
+
+Q8. Remove Empty Optionals
+
+Input:
+List<Optional<Integer>> list = Arrays.asList(
+    Optional.of(1),
+    Optional.empty(),
+    Optional.of(3)
+);
+
+Output:
+[1, 3]
+
+Answer:
+list.stream()
+    .flatMap(Optional::stream)
+    .collect(Collectors.toList());
+
+
+--------------------------------------------------
+
+IMPORTANT ANNOTATIONS========
+
+@Component – Generic Spring-managed bean
+@Service – Business logic layer
+@Repository – DAO layer + exception translation
+@Controller – MVC Controller
+@RestController – REST Controller (@Controller + @ResponseBody)
+@Configuration – Configuration class
+@Bean – Creates Spring bean manually
+@Autowired – Dependency injection
+@Qualifier – Resolve multiple bean conflicts
+@Primary – Default bean preference
+@Scope – Define bean scope
+
+@SpringBootApplication – Entry point (3 annotations combined)
+@EnableAutoConfiguration – Enables auto config
+@ComponentScan – Scans components
+@ConfigurationProperties – Bind properties
+@Value – Inject property value
+
+@RequestMapping – Map HTTP requests
+@GetMapping – GET requests
+@PostMapping – POST requests
+@PutMapping – PUT requests
+@DeleteMapping – DELETE requests
+@PathVariable – URL variable
+@RequestParam – Query parameter
+@RequestBody – Request payload
+@ResponseBody – Return JSON
+@ResponseStatus – Set HTTP status
+
+@Entity – JPA entity
+@Table – Map table
+@Id – Primary key
+@GeneratedValue – Auto ID generation
+@Column – Column mapping
+@OneToOne – One-to-one relation
+@OneToMany – One-to-many relation
+@ManyToOne – Many-to-one relation
+@ManyToMany – Many-to-many relation
+@JoinColumn – Foreign key
+@Enumerated – Enum mapping
+@Query – Custom query
+@Transactional – Transaction management
+
+@ControllerAdvice – Global exception handler
+@ExceptionHandler – Handle exceptions
+
+@EnableWebSecurity – Enable security
+@Configuration – Security config
+@Bean – Security beans
+@PreAuthorize – Method-level authorization
+
+@SpringBootTest – Integration testing
+@MockBean – Mock dependency
+@WebMvcTest – Controller testing
+@DataJpaTest – Repository testing
+
+=================SPRING DATA JPA==================
+
+Entity States: Transient, Persistent, Detached, Removed
+
+JPA Repository implementation is created by spring at runtime using JDK Dynamic Proxy
+
+Paging and Sorting
+
+PageRequest page = PageRequest.of(0, 10);
+Page<User> users = repo.findAll(page);
+
+Sort sort = Sort.by("name").descending();
+repo.findAll(sort);
+
+Page contains metadata; Slice does not.
+
+By Default,
+OneToMany → LAZY
+ManyToOne → EAGER
+
+Cascade Types: Persist, Merge, Remove, ALL
+
+
+==============SPRING AOP================
+@Before("execution(* com.app.service.*.*(..))")
+public void beforeAdvice() {
+    System.out.println("Before method");
+}
+
+Aspect: woh wali class jis mein cross cutting concerns likhne wale hai
+Advice: kab karna hai, Before, After etc
+Join Point: Exactly kya cheez execute ho rahi hai
+Point Cut: expression jisse pata chalta hai ki kisko execute karne pe advice run hona chahiye
+Target: actual business logic
+
+
+=============HTTP CODES===============
+
+500 - Internal Server Error
+502 - Bad Gateway
+503 - Service Unavailable
+504 - Gateway Timeout
+
+400 - Bad Request
+401 - Unauthorized (Authentication problem)
+403 - Forbidden (Authorization not there)
+404 - Not found
+405 - Method Not Allowed
+
+301 - Moved Permanently
+
+200 - OK
+201 - Created
+204 - No content
+
+
+A marker interface is a special type of interface with no methods, used to mark (tag) a class so that some framework or code can apply special behavior to it.
+
+=============Application Properties==============
+
+server.port=8080
+server.servlet.context-path=/api
+server.address=0.0.0.0
+
+spring.application.name=user-service
+
+spring.datasource.url=jdbc:mysql://localhost:3306/testdb
+spring.datasource.username=root
+spring.datasource.password=pass
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.format_sql=true
+spring.jpa.database-platform=org.hibernate.dialect.MySQL8Dialect
+
+logging.level.root=INFO
+logging.level.org.springframework=INFO
+logging.level.com.myapp=DEBUG
+logging.file.name=app.log
+
+spring.profiles.active=dev
+
+Profile specific files
+application-dev.properties
+application-prod.properties
+
+spring.security.user.name=admin
+spring.security.user.password=admin123
+spring.security.user.roles=ADMIN
+
+spring.web.cors.allowed-origins=*
+spring.web.cors.allowed-methods=GET,POST,PUT,DELETE
+
+spring.cache.type=redis
+spring.redis.host=localhost
+spring.redis.port=6379
+
+springdoc.api-docs.path=/v3/api-docs
+springdoc.swagger-ui.path=/swagger-ui.html
+
+spring.kafka.bootstrap-servers=localhost:9092
+spring.kafka.consumer.group-id=my-group
+
+eureka.client.service-url.defaultZone=http://localhost:8761/eureka
+eureka.client.register-with-eureka=true
+eureka.client.fetch-registry=true
