@@ -2,7 +2,7 @@ Core Java
 
 Test.java
 |
-bytecode (jvm ko samjhega, platform independent
+bytecode (jvm ko samjhega, platform independent)
 |
 machine code (system dependent)
 
