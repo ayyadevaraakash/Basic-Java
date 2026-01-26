@@ -2,11 +2,11 @@ M
 #1 avinash, utkarsh, aaditya
 #2 aman, shlok
 #3 saleem, kalpesh
-#4 manobala,vasanth
+#4 manobala, vasanth
 #5 jignesh, nayan
 #6 antony, pratik
 #7 nagurbabu, abhishek rohit
 #8 taranjeet singh, devish
 
 F
-#1 haritha
+#1 haritha manchala
